@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "515828528680",
+    "project_id": "numerical-methods-hub",
+    "storage_bucket": "numerical-methods-hub.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:515828528680:android:27e3a5477aea570e4ca71d",
+        "android_client_info": {
+          "package_name": "com.complex.lu_solver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1Ah67s2yWvzf2O4DszQY1W4udC5vVAdA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
