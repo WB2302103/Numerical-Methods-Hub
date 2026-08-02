@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../logic/auth_service.dart';
 import '../logic/database_service.dart';
 
-class HistoryScreen extends StatelessWidget {
-  const HistoryScreen({super.key});
+class FavoritesScreen extends StatelessWidget {
+  const FavoritesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,9 +13,9 @@ class HistoryScreen extends StatelessWidget {
     final db = DatabaseService();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Calculation History")),
+      appBar: AppBar(title: const Text("Saved Favorites")),
       body: StreamBuilder<QuerySnapshot>(
-        stream: db.getHistory(auth.currentUserId!),
+        stream: db.getFavorites(auth.currentUserId!),
         builder: (context, snapshot) {
           if (snapshot.hasError) return const Center(child: Text("Something went wrong"));
           if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
@@ -26,9 +26,10 @@ class HistoryScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.history_outlined, size: 80, color: Colors.grey.shade400),
+                  Icon(Icons.favorite_border, size: 80, color: Colors.grey.shade400),
                   const SizedBox(height: 15),
-                  Text("No history found", style: TextStyle(color: Colors.grey.shade600, fontSize: 18)),
+                  Text("No favorites yet", style: TextStyle(color: Colors.grey.shade600, fontSize: 18)),
+                  const Text("Save problems from the solver screen to see them here."),
                 ],
               ),
             );
@@ -43,12 +44,12 @@ class HistoryScreen extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 child: ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.calculate)),
+                  leading: const Icon(Icons.star, color: Colors.amber),
                   title: Text("${data['method']}"),
-                  subtitle: Text("Solved: ${(data['timestamp'] as Timestamp?)?.toDate().toString().substring(0, 16) ?? 'N/A'}"),
+                  subtitle: Text("Saved: ${(data['savedAt'] as Timestamp?)?.toDate().toString().substring(0, 10) ?? 'N/A'}"),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete_outline, color: Colors.red),
-                    onPressed: () => _confirmDelete(context, auth.currentUserId!, doc.id),
+                    onPressed: () => db.deleteFavorite(auth.currentUserId!, doc.id),
                   ),
                   onTap: () => _showDetails(context, data),
                 ),
@@ -60,44 +61,20 @@ class HistoryScreen extends StatelessWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context, String uid, String docId) {
-    showDialog(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: const Text("Delete Item?"),
-        content: const Text("Are you sure you want to remove this from history?"),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(c), child: const Text("Cancel")),
-          ElevatedButton(
-            onPressed: () async {
-              await DatabaseService().deleteHistoryItem(uid, docId);
-              if (context.mounted) Navigator.pop(c);
-            }, 
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            child: const Text("Delete")
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showDetails(BuildContext context, Map<String, dynamic> data) {
     showDialog(
       context: context,
       builder: (c) => AlertDialog(
-        title: Text("${data['method']} Details"),
+        title: Text("Saved ${data['method']}"),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Final Answer:", style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text("Answer:", style: TextStyle(fontWeight: FontWeight.bold)),
               Text(data['answer'].toString()),
-              const SizedBox(height: 15),
-              const Text("Input Matrix:", style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(data['matrix'].toString()),
               const SizedBox(height: 10),
-              const Text("Constant Vector:", style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(data['constantVector'].toString()),
+              const Text("Matrix:", style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(data['matrix'].toString()),
             ],
           ),
         ),

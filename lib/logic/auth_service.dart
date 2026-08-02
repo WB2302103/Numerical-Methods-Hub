@@ -86,7 +86,11 @@ class AuthService {
 
   // Sign Out
   Future<void> signOut() async {
-    await _googleSignIn.signOut();
+    try {
+      await _googleSignIn.signOut();
+    } catch (_) {
+      // Ignore errors during google sign out
+    }
     await _auth.signOut();
   }
 
